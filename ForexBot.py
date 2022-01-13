@@ -9,6 +9,7 @@ from tensorflow.keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 import schedule
 import time
+import pandas as pd
 
 n_steps=100
 scaler=MinMaxScaler(feature_range=(0,1))
@@ -46,11 +47,23 @@ for index, pair in enumerate(symbols):
     model = load_model('models/1H/'+ pair + '_1H_model.h5')
     models_1H.append(model)
 
+models_4H = []
+print("Loading 4H models...")
+for index, pair in enumerate(symbols):
+    model = load_model('models/4H/'+ pair + '_4H_model.h5')
+    models_4H.append(model)
+    
 models_1D = []
 print("Loading 1D models...")
 for index, pair in enumerate(symbols):
     model = load_model('models/1D/'+ pair + '_1D_model.h5')
     models_1D.append(model)
+
+models_1W = []
+print("Loading 1W models...")
+for index, pair in enumerate(symbols):
+    model = load_model('models/1W/'+ pair + '_1W_model.h5')
+    models_1W.append(model)
 
 # Functions:
 def predictionFunction(x_input, model):
@@ -118,13 +131,38 @@ def job4():
         botLogic(data, models_1H[index], 'I', 'J', str(index+10))
 
 def job5():
+    print("4 hour...")
+    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=30)).strftime("%Y-%m-%d-%H:%M")
+    to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
+    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="hourly",fields=["close"],period=1)
+    for index, pair in enumerate(symbols):
+        data = df[pair]
+        data = data.iloc[::4]
+        botLogic(data, models_4H[index], 'K', 'L', str(index+10))
+
+
+def job6():
     print("1 day...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=150)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
     for index, pair in enumerate(symbols):
         data = df[pair]
-        botLogic(data, models_1D[index], 'K', 'L', str(index+10))
+        botLogic(data, models_1D[index], 'M', 'N', str(index+10))
+
+def job7():
+    print("1 week...")
+    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=365)).strftime("%Y-%m-%d-%H:%M")
+    to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
+    df1 = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
+    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=730)).strftime("%Y-%m-%d-%H:%M")
+    to_datetime = (datetime.now(timezone('US/Eastern')) - timedelta(days=366)).strftime("%Y-%m-%d-%H:%M")
+    df2 = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
+    df = pd.concat([df2, df1], ignore_index=True)
+    for index, pair in enumerate(symbols):
+        data = df[pair]
+        data = data.iloc[::5]
+        botLogic(data, models_1W[index], 'O', 'P', str(index+10))
 
 if __name__=="__main__":
     # Running jobs once at the start:
@@ -133,13 +171,17 @@ if __name__=="__main__":
     job3()
     job4()
     job5()
+    job6()
+    job7()
     # Schedule jobs:
     print("scheduling jobs...")
     schedule.every(1).minutes.do(job1)
     schedule.every(15).minutes.do(job2)
     schedule.every(30).minutes.do(job3)
     schedule.every(1).hour.do(job4)
-    schedule.every().day.at("00:01").do(job5)
+    schedule.every(4).hours.do(job5)
+    schedule.every().day.at("00:01").do(job6)
+    schedule.every().monday.at("00:01").do(job7)
 
     while True:
         schedule.run_pending()

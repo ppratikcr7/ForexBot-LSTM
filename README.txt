@@ -21,6 +21,14 @@ source forexbot/bin/activate
 pip3 install -r requirements.txt
 (created using pip3 freeze > requirements.txt)
 
+Setup gspread keys for google sheets:
+Steps for setting gspread using google sheet api in google cloud platform:
+1. Make a project on GCP and enable google sheet api
+2. Create access keys for this google sheet api and download it (for eg "algotradingbot-320415-8cf7f6fb9c7a.json")
+3. Now move and rename this file by using below commands in terminal with the name of your access key file:
+mkdir ~/.config/gspread
+mv algotradingbot-320415-8cf7f6fb9c7a.json ~/.config/gspread/service_account.json
+
 Run program:
 1. First edit ForexModelTrainer.py and ForexBot.py files and put you api_key for tradermade account.
 2. Run the Forex bot that will update the google sheet (https://docs.google.com/spreadsheets/d/1rGRqOwICVfW8TEpgoiNN6KhbDfGKBF-z0Id8gcAOkQ4/edit#gid=631979319) named "Final" with predictions for time frames according to their time frame.

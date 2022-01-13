@@ -19,13 +19,14 @@ def create_dataset(dataset, time_step=1):
     return np.array(dataX), np.array(dataY)
 
 # Load dataset for tradermade:
-api_key = ""
+api_key = "loGqUPLhg0sYLb7NyfSY"
 tm.set_rest_api_key(api_key)
-time_frames = ['1M', '15M', '30M', '1H', '4H', '1D', '1W']
-time = [1,15,30,1,1,1,1]
-start_dates = [1, 2, 2, 60, 60, 365, 365]
+time_frames = ['1W']
+time = [1]
+start_dates = [365]
 symbols = ['EURUSD', 'GBPJPY', 'GBPUSD', 'USDJPY', 'USDCHF', 'USDCAD', 'AUDUSD', 'NZDUSD', 'XAUUSD']
-intervals = [ 'minute', 'minute', 'minute', 'hourly', 'hourly', 'daily', 'daily']
+# symbols = ['EURUSD']
+intervals = ['daily']
 
 for pair in symbols:
     for index, time_frame in enumerate(time_frames):
@@ -37,8 +38,10 @@ for pair in symbols:
         if time_frame == '4H':
             df = df.iloc[::4]
         elif time_frame == '1W':
+            print(start_date, end_date)
             start_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=730)).strftime("%Y-%m-%d-%H:%M")
             end_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=366)).strftime("%Y-%m-%d-%H:%M")
+            # print(start_date, end_date)
             df2 = tm.timeseries(currency=pair, start=start_date,end=end_date,interval=intervals[index],fields=["close"],period=time[index])
             df2 = df2['close']
             df = pd.concat([df2, df], ignore_index=True)
@@ -65,4 +68,4 @@ for pair in symbols:
         model.compile(loss='mean_squared_error',optimizer='adam')
         model.fit(X_train,y_train,validation_data=(X_test,ytest),epochs=100,batch_size=time_step,verbose=1)
         # Save the model
-        model.save('models1/' + time_frame + '/' + pair + '_' + time_frame + '_model.h5')
+        model.save('models/' + time_frame + '/' + pair + '_' + time_frame + '_model.h5')
