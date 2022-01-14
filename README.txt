@@ -35,3 +35,5 @@ Run program:
 3. Run the trainer Bot every week on weekends to get new trend to be learnt by the LSTM bot in the new trained models for each time frames: python3 ForexModelTrainer.py
 4. There one more jupyter notebook "Forex_Prediction_CandleStick_Analysis.ipynb" which has initial level candlestick pattern analysis and basic LSTM model with overall accuracy of various predictions.
  
+ Demo Link: https://drive.google.com/file/d/1z0UDROpG-k78BuuQSOMJJNYmSHkEsnCx/view?usp=sharing
+ 
