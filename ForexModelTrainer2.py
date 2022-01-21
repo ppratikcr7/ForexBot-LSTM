@@ -19,13 +19,13 @@ def create_dataset(dataset, time_step=1):
     return np.array(dataX), np.array(dataY)
 
 # Load dataset for tradermade:
-api_key = "loGqUPLhg0sYLb7NyfSY"
+api_key = ""
 tm.set_rest_api_key(api_key)
 time_frames = ['1W']
 time = [1]
 start_dates = [365]
 symbols = ['EURUSD', 'GBPJPY', 'GBPUSD', 'USDJPY', 'USDCHF', 'USDCAD', 'AUDUSD', 'NZDUSD', 'XAUUSD']
-# symbols = ['EURUSD']
+# symbols = ['XAUUSD']
 intervals = ['daily']
 
 for pair in symbols:
@@ -38,15 +38,57 @@ for pair in symbols:
         if time_frame == '4H':
             df = df.iloc[::4]
         elif time_frame == '1W':
-            print(start_date, end_date)
             start_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=730)).strftime("%Y-%m-%d-%H:%M")
             end_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=366)).strftime("%Y-%m-%d-%H:%M")
-            # print(start_date, end_date)
+            print(start_date, end_date)
             df2 = tm.timeseries(currency=pair, start=start_date,end=end_date,interval=intervals[index],fields=["close"],period=time[index])
             df2 = df2['close']
-            df = pd.concat([df2, df], ignore_index=True)
+            start_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=1095)).strftime("%Y-%m-%d-%H:%M")
+            end_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=731)).strftime("%Y-%m-%d-%H:%M")
+            print(start_date, end_date)
+            df3 = tm.timeseries(currency=pair, start=start_date,end=end_date,interval=intervals[index],fields=["close"],period=time[index])
+            df3 = df3['close']
+            start_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=1460)).strftime("%Y-%m-%d-%H:%M")
+            end_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=1096)).strftime("%Y-%m-%d-%H:%M")
+            print(start_date, end_date)
+            df4 = tm.timeseries(currency=pair, start=start_date,end=end_date,interval=intervals[index],fields=["close"],period=time[index])
+            df4 = df4['close']
+            start_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=1825)).strftime("%Y-%m-%d-%H:%M")
+            end_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=1461)).strftime("%Y-%m-%d-%H:%M")
+            print(start_date, end_date)
+            df5 = tm.timeseries(currency=pair, start=start_date,end=end_date,interval=intervals[index],fields=["close"],period=time[index])
+            df5 = df5['close']
+            start_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=2190)).strftime("%Y-%m-%d-%H:%M")
+            end_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=1826)).strftime("%Y-%m-%d-%H:%M")
+            df6 = tm.timeseries(currency=pair, start=start_date,end=end_date,interval=intervals[index],fields=["close"],period=time[index])
+            df6 = df6['close']
+            print(start_date, end_date)
+            start_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=2555)).strftime("%Y-%m-%d-%H:%M")
+            end_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=2191)).strftime("%Y-%m-%d-%H:%M")
+            print(start_date, end_date)
+            df7 = tm.timeseries(currency=pair, start=start_date,end=end_date,interval=intervals[index],fields=["close"],period=time[index])
+            df7 = df7['close']
+            start_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=2920)).strftime("%Y-%m-%d-%H:%M")
+            end_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=2556)).strftime("%Y-%m-%d-%H:%M")
+            print(start_date, end_date)
+            df8 = tm.timeseries(currency=pair, start=start_date,end=end_date,interval=intervals[index],fields=["close"],period=time[index])
+            df8 = df8['close']
+            start_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=3285)).strftime("%Y-%m-%d-%H:%M")
+            end_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=2921)).strftime("%Y-%m-%d-%H:%M")
+            print(start_date, end_date)
+            df9 = tm.timeseries(currency=pair, start=start_date,end=end_date,interval=intervals[index],fields=["close"],period=time[index])
+            df9 = df9['close']
+            start_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=3650)).strftime("%Y-%m-%d-%H:%M")
+            end_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=3286)).strftime("%Y-%m-%d-%H:%M")
+            print(start_date, end_date)
+            df10 = tm.timeseries(currency=pair, start=start_date,end=end_date,interval=intervals[index],fields=["close"],period=time[index])
+            df10 = df10['close']
+            df = pd.concat([df10, df9, df8, df7, df6, df5, df4, df3, df2, df], ignore_index=True)
+            df = df[df.notna()]
             df = df.iloc[::5]
-        ### LSTM are sensitive to the scale of the data. so we apply MinMax scaler
+            print(df)
+            print(df.shape)
+        # LSTM are sensitive to the scale of the data. so we apply MinMax scaler
         scaler=MinMaxScaler(feature_range=(0,1))
         df1=scaler.fit_transform(np.array(df).reshape(-1,1))
         ##splitting dataset into train and test split

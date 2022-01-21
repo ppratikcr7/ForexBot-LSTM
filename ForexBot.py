@@ -11,9 +11,10 @@ import schedule
 import time
 import pandas as pd
 
-n_steps=100
+n_steps=10
 scaler=MinMaxScaler(feature_range=(0,1))
 symbols = ['EURUSD', 'GBPJPY', 'GBPUSD', 'USDJPY', 'USDCHF', 'USDCAD', 'AUDUSD', 'NZDUSD', 'XAUUSD']
+# symbols = ['XAUUSD']
 api_key = ""
 tm.set_rest_api_key(api_key)
 
@@ -85,7 +86,7 @@ def updateSheet(wks, cell1, cell2, trend, expected_move):
 def botLogic(df, model, col1, col2, cell):
     df=scaler.fit_transform(np.array(df).reshape(-1,1))
     lst = []
-    df = df[:100, 0]
+    df = df[:10, 0]
     lst.append(df)
     df = np.array(lst)
     pred = predictionFunction(df, model)
@@ -101,66 +102,73 @@ def job1():
     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=1)
     for index, pair in enumerate(symbols):
         data = df[pair]
+        data = data[data.notna()]
         botLogic(data, models_1M[index], 'C', 'D', str(index+10))
 
 def job2():
     print("15 min...")
-    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=2)).strftime("%Y-%m-%d-%H:%M")
+    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=1)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=15)
     for index, pair in enumerate(symbols):
         data = df[pair]
+        data = data[data.notna()]
         botLogic(data, models_15M[index], 'E', 'F', str(index+10))
 
 def job3():
     print("30 min...")
-    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=3)).strftime("%Y-%m-%d-%H:%M")
+    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=1)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=30)
     for index, pair in enumerate(symbols):
         data = df[pair]
+        data = data[data.notna()]
         botLogic(data, models_30M[index], 'G', 'H', str(index+10))
 
 def job4():
     print("1 hour...")
-    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=7)).strftime("%Y-%m-%d-%H:%M")
+    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=2)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="hourly",fields=["close"],period=1)
     for index, pair in enumerate(symbols):
         data = df[pair]
+        data = data[data.notna()]
         botLogic(data, models_1H[index], 'I', 'J', str(index+10))
 
 def job5():
     print("4 hour...")
-    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=30)).strftime("%Y-%m-%d-%H:%M")
+    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=3)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="hourly",fields=["close"],period=1)
     for index, pair in enumerate(symbols):
         data = df[pair]
+        data = data[data.notna()]
         data = data.iloc[::4]
         botLogic(data, models_4H[index], 'K', 'L', str(index+10))
 
 
 def job6():
     print("1 day...")
-    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=150)).strftime("%Y-%m-%d-%H:%M")
+    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=15)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
     for index, pair in enumerate(symbols):
         data = df[pair]
+        ddata = data[data.notna()]
         botLogic(data, models_1D[index], 'M', 'N', str(index+10))
 
 def job7():
     print("1 week...")
-    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=365)).strftime("%Y-%m-%d-%H:%M")
+    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=100)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
-    df1 = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
-    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=730)).strftime("%Y-%m-%d-%H:%M")
-    to_datetime = (datetime.now(timezone('US/Eastern')) - timedelta(days=366)).strftime("%Y-%m-%d-%H:%M")
-    df2 = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
-    df = pd.concat([df2, df1], ignore_index=True)
+    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
+    # from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=730)).strftime("%Y-%m-%d-%H:%M")
+    # to_datetime = (datetime.now(timezone('US/Eastern')) - timedelta(days=366)).strftime("%Y-%m-%d-%H:%M")
+    # df2 = tm.timeseries(currency='XAUUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
+    # df = pd.concat([df2, df1], ignore_index=True)
     for index, pair in enumerate(symbols):
         data = df[pair]
+        data = data[data.notna()]
         data = data.iloc[::5]
         botLogic(data, models_1W[index], 'O', 'P', str(index+10))
 
