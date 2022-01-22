@@ -19,7 +19,7 @@ api_key = ""
 tm.set_rest_api_key(api_key)
 
 # Google Sheet:
-sa = gspread.service_account()
+sa = gspread.service_account(filename='service_account.json')
 sh = sa.open("FX - AI/ML Model Sheet")
 wks = sh.worksheet("Final")
 
