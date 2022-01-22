@@ -177,9 +177,11 @@ if __name__=="__main__":
     job1()
     job2()
     job3()
+    time.sleep(50)
     job4()
     job5()
     job6()
+    time.sleep(50)
     job7()
     # Schedule jobs:
     print("scheduling jobs...")
