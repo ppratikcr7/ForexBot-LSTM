@@ -24,7 +24,8 @@ tm.set_rest_api_key(api_key)
 time_frames = ['1M', '15M', '30M', '1H', '4H', '1D', '1W']
 time = [1,15,30,1,1,1,1]
 start_dates = [1, 2, 2, 60, 60, 365, 365]
-symbols = ['EURUSD', 'GBPJPY', 'GBPUSD', 'USDJPY', 'USDCHF', 'USDCAD', 'AUDUSD', 'NZDUSD', 'XAUUSD']
+# Add your own list of symbols here:
+symbols = ['EURUSD', 'GBPJPY', 'GBPUSD', 'USDJPY', 'USDCHF', 'USDCAD', 'AUDUSD', 'NZDUSD', 'XAUUSD', 'XAGUSD']
 intervals = [ 'minute', 'minute', 'minute', 'hourly', 'hourly', 'daily', 'daily']
 
 for pair in symbols:

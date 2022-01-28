@@ -9,17 +9,18 @@ from tensorflow.keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 import schedule
 import time
-import pandas as pd
+# import pandas as pd
 
 n_steps=10
 scaler=MinMaxScaler(feature_range=(0,1))
-symbols = ['EURUSD', 'GBPJPY', 'GBPUSD', 'USDJPY', 'USDCHF', 'USDCAD', 'AUDUSD', 'NZDUSD', 'XAUUSD']
+symbols = ['EURUSD', 'GBPJPY', 'GBPUSD', 'USDJPY', 'USDCHF', 'USDCAD', 'AUDUSD', 'NZDUSD', 'XAUUSD', 'XAGUSD']
 # symbols = ['XAUUSD']
 api_key = ""
 tm.set_rest_api_key(api_key)
 
 # Google Sheet:
-sa = gspread.service_account(filename='service_account.json')
+# sa = gspread.service_account(filename='service_account.json')
+sa = gspread.service_account()
 sh = sa.open("FX - AI/ML Model Sheet")
 wks = sh.worksheet("Final")
 
@@ -99,7 +100,7 @@ def job1():
     print("1 min...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=1)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
-    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=1)
+    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=1)
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
@@ -109,7 +110,7 @@ def job2():
     print("15 min...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=1)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
-    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=15)
+    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=15)
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
@@ -119,7 +120,7 @@ def job3():
     print("30 min...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=1)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
-    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=30)
+    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=30)
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
@@ -129,7 +130,7 @@ def job4():
     print("1 hour...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=2)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
-    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="hourly",fields=["close"],period=1)
+    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="hourly",fields=["close"],period=1)
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
@@ -139,7 +140,7 @@ def job5():
     print("4 hour...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=3)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
-    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="hourly",fields=["close"],period=1)
+    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="hourly",fields=["close"],period=1)
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
@@ -151,17 +152,17 @@ def job6():
     print("1 day...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=15)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
-    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
+    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
     for index, pair in enumerate(symbols):
         data = df[pair]
-        ddata = data[data.notna()]
+        data = data[data.notna()]
         botLogic(data, models_1D[index], 'M', 'N', str(index+10))
 
 def job7():
     print("1 week...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=100)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
-    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
+    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
     # from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=730)).strftime("%Y-%m-%d-%H:%M")
     # to_datetime = (datetime.now(timezone('US/Eastern')) - timedelta(days=366)).strftime("%Y-%m-%d-%H:%M")
     # df2 = tm.timeseries(currency='XAUUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
@@ -192,7 +193,20 @@ if __name__=="__main__":
     schedule.every(4).hours.do(job5)
     schedule.every().day.at("00:01").do(job6)
     schedule.every().monday.at("00:01").do(job7)
-
+    # count = 0
     while True:
-        schedule.run_pending()
-        time.sleep(1)
+        now_time = datetime.now(timezone('US/Eastern'))
+        day = datetime.now(timezone('US/Eastern')).weekday()
+        # day = day + count
+        # print("day: ", day)
+        if(day <= 4):
+            schedule.run_pending()
+            time.sleep(1)
+            # count = 1
+        else:
+            print("Weekend...")
+            wks.update('I2', 'Weekend: Bot Paused')
+            # sleep for 2 days (1 minute before starting again)
+            time.sleep(172740)
+            wks.update('I2', 'Weekend over: Bot Start')
+            print("Weekend over Starting again...")
