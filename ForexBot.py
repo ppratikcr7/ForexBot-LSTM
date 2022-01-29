@@ -104,6 +104,9 @@ def job1():
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
+        if len(data) < 10:
+            print("Not enough data for " + pair)
+            continue
         botLogic(data, models_1M[index], 'C', 'D', str(index+10))
 
 def job2():
@@ -114,16 +117,22 @@ def job2():
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
+        if len(data) < 10:
+            print("Not enough data for " + pair)
+            continue
         botLogic(data, models_15M[index], 'E', 'F', str(index+10))
 
 def job3():
     print("30 min...")
-    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=1)).strftime("%Y-%m-%d-%H:%M")
+    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=2)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=30)
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
+        if len(data) < 10:
+            print("Not enough data for " + pair)
+            continue
         botLogic(data, models_30M[index], 'G', 'H', str(index+10))
 
 def job4():
@@ -134,6 +143,9 @@ def job4():
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
+        if len(data) < 10:
+            print("Not enough data for " + pair)
+            continue
         botLogic(data, models_1H[index], 'I', 'J', str(index+10))
 
 def job5():
@@ -145,22 +157,28 @@ def job5():
         data = df[pair]
         data = data[data.notna()]
         data = data.iloc[::4]
+        if len(data) < 10:
+            print("Not enough data for " + pair)
+            continue
         botLogic(data, models_4H[index], 'K', 'L', str(index+10))
 
 
 def job6():
     print("1 day...")
-    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=15)).strftime("%Y-%m-%d-%H:%M")
+    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=20)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
+        if len(data) < 10:
+            print("Not enough data for " + pair)
+            continue
         botLogic(data, models_1D[index], 'M', 'N', str(index+10))
 
 def job7():
     print("1 week...")
-    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=100)).strftime("%Y-%m-%d-%H:%M")
+    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=140)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
     # from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=730)).strftime("%Y-%m-%d-%H:%M")
@@ -171,6 +189,9 @@ def job7():
         data = df[pair]
         data = data[data.notna()]
         data = data.iloc[::5]
+        if len(data) < 10:
+            print("Not enough data for " + pair)
+            continue
         botLogic(data, models_1W[index], 'O', 'P', str(index+10))
 
 if __name__=="__main__":
@@ -199,14 +220,14 @@ if __name__=="__main__":
         day = datetime.now(timezone('US/Eastern')).weekday()
         # day = day + count
         # print("day: ", day)
-        if(day <= 4):
+        if(day <= 6):
             schedule.run_pending()
             time.sleep(1)
             # count = 1
-        else:
-            print("Weekend...")
-            wks.update('I2', 'Weekend: Bot Paused')
-            # sleep for 2 days (1 minute before starting again)
-            time.sleep(172740)
-            wks.update('I2', 'Weekend over: Bot Start')
-            print("Weekend over Starting again...")
+        # else:
+        #     print("Weekend...")
+        #     wks.update('I2', 'Weekend: Bot Paused')
+        #     # sleep for 2 days (1 minute before starting again)
+        #     time.sleep(172740)
+        #     wks.update('I2', 'Weekend over: Bot Start')
+        #     print("Weekend over Starting again...")
