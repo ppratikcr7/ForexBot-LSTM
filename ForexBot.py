@@ -12,7 +12,7 @@ import time
 
 n_steps=10
 scaler=MinMaxScaler(feature_range=(0,1))
-symbols = ['EURUSD', 'GBPJPY', 'GBPUSD', 'USDJPY', 'USDCHF', 'USDCAD', 'AUDUSD', 'NZDUSD', 'XAUUSD', 'XAGUSD']
+symbols = ['EURUSD', 'GBPJPY', 'GBPUSD', 'USDJPY', 'USDCHF', 'USDCAD', 'AUDUSD', 'NZDUSD', 'XAUUSD', 'XAGUSD', 'SPX500', 'NAS100']
 # symbols = ['XAUUSD']
 api_key = ""
 tm.set_rest_api_key(api_key)
@@ -21,20 +21,20 @@ tm.set_rest_api_key(api_key)
 sa = gspread.service_account(filename='service_account.json')
 # sa = gspread.service_account()
 sh = sa.open("FX - AI/ML Model Sheet")
-wks = sh.worksheet("Final")
+wks = sh.worksheet("30M-1W")
 
 # Load all trained models once each week:
-models_1M = []
-print("Loading 1M models...")
-for index, pair in enumerate(symbols):
-    model = load_model('models/1M/'+ pair + '_1M_model.h5')
-    models_1M.append(model)
+# models_1M = []
+# print("Loading 1M models...")
+# for index, pair in enumerate(symbols):
+#     model = load_model('models/1M/'+ pair + '_1M_model.h5')
+#     models_1M.append(model)
 
-models_15M = []
-print("Loading 15M models...")
-for index, pair in enumerate(symbols):
-    model = load_model('models/15M/'+ pair + '_15M_model.h5')
-    models_15M.append(model)
+# models_15M = []
+# print("Loading 15M models...")
+# for index, pair in enumerate(symbols):
+#     model = load_model('models/15M/'+ pair + '_15M_model.h5')
+#     models_15M.append(model)
 
 models_30M = []
 print("Loading 30M models...")
@@ -47,6 +47,12 @@ print("Loading 1H models...")
 for index, pair in enumerate(symbols):
     model = load_model('models/1H/'+ pair + '_1H_model.h5')
     models_1H.append(model)
+
+models_2H = []
+print("Loading 2H models...")
+for index, pair in enumerate(symbols):
+    model = load_model('models/2H/'+ pair + '_2H_model.h5')
+    models_2H.append(model)
 
 models_4H = []
 print("Loading 4H models...")
@@ -94,39 +100,39 @@ def botLogic(df, model, col1, col2, cell):
     updateSheet(wks, col1+cell, col2+cell, trend, json.dumps(np.round(expected_move.astype(float),5)))
     print("Updated in google sheet")
 
-def job1():
-    print("1 min...")
-    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=1)).strftime("%Y-%m-%d-%H:%M")
-    to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
-    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=1)
-    for index, pair in enumerate(symbols):
-        data = df[pair]
-        data = data[data.notna()]
-        if len(data) < 10:
-            print("Not enough data for " + pair)
-            continue
-        data = data[-10:]
-        botLogic(data, models_1M[index], 'C', 'D', str(index+10))
+# def job1():
+#     print("1 min...")
+#     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=1)).strftime("%Y-%m-%d-%H:%M")
+#     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
+#     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD,SPX500,NAS100', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=1)
+#     for index, pair in enumerate(symbols):
+#         data = df[pair]
+#         data = data[data.notna()]
+#         if len(data) < 10:
+#             print("Not enough data for " + pair)
+#             continue
+#         data = data[-10:]
+#         botLogic(data, models_1M[index], 'C', 'D', str(index+10))
 
-def job2():
-    print("15 min...")
-    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=1)).strftime("%Y-%m-%d-%H:%M")
-    to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
-    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=15)
-    for index, pair in enumerate(symbols):
-        data = df[pair]
-        data = data[data.notna()]
-        if len(data) < 10:
-            print("Not enough data for " + pair)
-            continue
-        data = data[-10:]
-        botLogic(data, models_15M[index], 'E', 'F', str(index+10))
+# def job2():
+#     print("15 min...")
+#     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=1)).strftime("%Y-%m-%d-%H:%M")
+#     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
+#     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD,SPX500,NAS100', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=15)
+#     for index, pair in enumerate(symbols):
+#         data = df[pair]
+#         data = data[data.notna()]
+#         if len(data) < 10:
+#             print("Not enough data for " + pair)
+#             continue
+#         data = data[-10:]
+#         botLogic(data, models_15M[index], 'E', 'F', str(index+10))
 
 def job3():
     print("30 min...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=2)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
-    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=30)
+    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD,SPX500,NAS100', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=30)
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
@@ -134,13 +140,13 @@ def job3():
             print("Not enough data for " + pair)
             continue
         data = data[-10:]
-        botLogic(data, models_30M[index], 'G', 'H', str(index+10))
+        botLogic(data, models_30M[index], 'C', 'D', str(index+10))
 
 def job4():
     print("1 hour...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=4)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
-    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="hourly",fields=["close"],period=1)
+    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD,SPX500,NAS100', start=from_date,end=to_datetime,interval="hourly",fields=["close"],period=1)
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
@@ -148,13 +154,28 @@ def job4():
             print("Not enough data for " + pair)
             continue
         data = data[-10:]
-        botLogic(data, models_1H[index], 'I', 'J', str(index+10))
+        botLogic(data, models_1H[index], 'E', 'F', str(index+10))
+
+def job4a():
+    print("2 hour...")
+    from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=4)).strftime("%Y-%m-%d-%H:%M")
+    to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
+    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD,SPX500,NAS100', start=from_date,end=to_datetime,interval="hourly",fields=["close"],period=1)
+    for index, pair in enumerate(symbols):
+        data = df[pair]
+        data = data[data.notna()]
+        data = data.iloc[::2]
+        if len(data) < 10:
+            print("Not enough data for " + pair)
+            continue
+        data = data[-10:]
+        botLogic(data, models_1H[index], 'G', 'H', str(index+10))
 
 def job5():
     print("4 hour...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=5)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
-    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="hourly",fields=["close"],period=1)
+    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD,SPX500,NAS100', start=from_date,end=to_datetime,interval="hourly",fields=["close"],period=1)
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
@@ -163,14 +184,14 @@ def job5():
             print("Not enough data for " + pair)
             continue
         data = data[-10:]
-        botLogic(data, models_4H[index], 'K', 'L', str(index+10))
+        botLogic(data, models_4H[index], 'I', 'J', str(index+10))
 
 
 def job6():
     print("1 day...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=20)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
-    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
+    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD,SPX500,NAS100', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
@@ -178,13 +199,13 @@ def job6():
             print("Not enough data for " + pair)
             continue
         data = data[-10:]
-        botLogic(data, models_1D[index], 'M', 'N', str(index+10))
+        botLogic(data, models_1D[index], 'K', 'L', str(index+10))
 
 def job7():
     print("1 week...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=140)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
-    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
+    df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD,SPX500,NAS100', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
@@ -193,25 +214,27 @@ def job7():
             print("Not enough data for " + pair)
             continue
         data = data[-10:]
-        botLogic(data, models_1W[index], 'O', 'P', str(index+10))
+        botLogic(data, models_1W[index], 'M', 'N', str(index+10))
 
 if __name__=="__main__":
     # Running jobs once at the start:
-    job1()
-    job2()
+    # job1()
+    # job2()
     job3()
-    time.sleep(50)
     job4()
-    job5()
-    job6()
     time.sleep(50)
+    job4a()
+    job5()
+    time.sleep(50)
+    job6()
     job7()
     # Schedule jobs:
     print("scheduling jobs...")
-    schedule.every(1).minutes.do(job1)
-    schedule.every(15).minutes.do(job2)
+    # schedule.every(1).minutes.do(job1)
+    # schedule.every(15).minutes.do(job2)
     schedule.every(30).minutes.do(job3)
     schedule.every(1).hour.do(job4)
+    schedule.every(2).hours.do(job4a)
     schedule.every(4).hours.do(job5)
     schedule.every().day.at("00:01").do(job6)
     schedule.every().monday.at("00:01").do(job7)
