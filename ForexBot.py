@@ -277,8 +277,7 @@ if __name__=="__main__":
         if(day <= 4):
             print(schedule.jobs)
             schedule.run_pending()
-            print("Running job...if")
-            time.sleep(20)
+            time.sleep(5)
         else:
             print("Weekend...")
             wks.update('I2', 'Weekend: Bot Paused')
