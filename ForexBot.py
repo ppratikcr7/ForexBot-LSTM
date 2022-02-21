@@ -22,6 +22,7 @@ sa = gspread.service_account(filename='service_account.json')
 # sa = gspread.service_account()
 sh = sa.open("FX - AI/ML Model Sheet")
 wks = sh.worksheet("30M-1W")
+print("Loading models...")
 
 # Load all trained models once each week:
 # models_1M = []
@@ -85,11 +86,13 @@ def transformValue(last_val, pred):
     return trend, expected_move[0]
 
 # Updating forecasting in google sheets:
-def updateSheet(wks, cell1, cell2, trend, expected_move): 
-    wks.update(cell1, trend)
-    wks.update(cell2, expected_move)
+def updateSheet(wks, cell_range, cell_values): 
+    cell_list = wks.range(cell_range)
+    for i, val in enumerate(cell_values):  #gives us a tuple of an index and value
+        cell_list[i].value = val
+    wks.update_cells(cell_list)
 
-def botLogic(df, model, col1, col2, cell):
+def botLogic(df, model):
     df=scaler.fit_transform(np.array(df).reshape(-1,1))
     lst = []
     lst.append(df)
@@ -97,8 +100,8 @@ def botLogic(df, model, col1, col2, cell):
     pred = predictionFunction(df, model)
     last_val = scaler.inverse_transform(df[-1].reshape(1,-1))
     trend, expected_move = transformValue(last_val, pred)
-    updateSheet(wks, col1+cell, col2+cell, trend, json.dumps(np.round(expected_move.astype(float),5)))
-    print("Updated in google sheet")
+    expected_move = json.dumps(np.round(expected_move.astype(float),5))
+    return trend, expected_move
 
 # def job1():
 #     print("1 min...")
@@ -133,6 +136,7 @@ def job3():
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=2)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD,SPX500,NAS100', start=from_date,end=to_datetime,interval="minute",fields=["close"],period=30)
+    cell_list = []
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
@@ -140,13 +144,18 @@ def job3():
             print("Not enough data for " + pair)
             continue
         data = data[-10:]
-        botLogic(data, models_30M[index], 'C', 'D', str(index+10))
+        trend, value = botLogic(data, models_30M[index])
+        cell_list.append(trend)
+        cell_list.append(value)
+    updateSheet(wks, 'C10:D21', cell_list)
+    print("Updated in google sheet")
 
 def job4():
     print("1 hour...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=4)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD,SPX500,NAS100', start=from_date,end=to_datetime,interval="hourly",fields=["close"],period=1)
+    cell_list = []
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
@@ -154,13 +163,18 @@ def job4():
             print("Not enough data for " + pair)
             continue
         data = data[-10:]
-        botLogic(data, models_1H[index], 'E', 'F', str(index+10))
+        trend, value = botLogic(data, models_1H[index])
+        cell_list.append(trend)
+        cell_list.append(value)
+    updateSheet(wks, 'E10:F21', cell_list)
+    print("Updated in google sheet")
 
 def job4a():
     print("2 hour...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=4)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD,SPX500,NAS100', start=from_date,end=to_datetime,interval="hourly",fields=["close"],period=1)
+    cell_list = []
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
@@ -169,13 +183,18 @@ def job4a():
             print("Not enough data for " + pair)
             continue
         data = data[-10:]
-        botLogic(data, models_1H[index], 'G', 'H', str(index+10))
+        trend, value = botLogic(data, models_2H[index])
+        cell_list.append(trend)
+        cell_list.append(value)
+    updateSheet(wks, 'G10:H21', cell_list)
+    print("Updated in google sheet")
 
 def job5():
     print("4 hour...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=5)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD,SPX500,NAS100', start=from_date,end=to_datetime,interval="hourly",fields=["close"],period=1)
+    cell_list = []
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
@@ -184,7 +203,11 @@ def job5():
             print("Not enough data for " + pair)
             continue
         data = data[-10:]
-        botLogic(data, models_4H[index], 'I', 'J', str(index+10))
+        trend, value = botLogic(data, models_4H[index])
+        cell_list.append(trend)
+        cell_list.append(value)
+    updateSheet(wks, 'I10:J21', cell_list)
+    print("Updated in google sheet")
 
 
 def job6():
@@ -192,6 +215,7 @@ def job6():
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=20)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD,SPX500,NAS100', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
+    cell_list = []
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
@@ -199,13 +223,18 @@ def job6():
             print("Not enough data for " + pair)
             continue
         data = data[-10:]
-        botLogic(data, models_1D[index], 'K', 'L', str(index+10))
+        trend, value = botLogic(data, models_1D[index])
+        cell_list.append(trend)
+        cell_list.append(value)
+    updateSheet(wks, 'K10:L21', cell_list)
+    print("Updated in google sheet")
 
 def job7():
     print("1 week...")
     from_date = (datetime.now(timezone('US/Eastern')) - timedelta(days=140)).strftime("%Y-%m-%d-%H:%M")
     to_datetime = (datetime.now(timezone('US/Eastern'))).strftime("%Y-%m-%d-%H:%M")
     df = tm.timeseries(currency='EURUSD,GBPJPY,GBPUSD,USDJPY,USDCHF,USDCAD,AUDUSD,NZDUSD,XAUUSD,XAGUSD,SPX500,NAS100', start=from_date,end=to_datetime,interval="daily",fields=["close"],period=1)
+    cell_list = []
     for index, pair in enumerate(symbols):
         data = df[pair]
         data = data[data.notna()]
@@ -214,7 +243,11 @@ def job7():
             print("Not enough data for " + pair)
             continue
         data = data[-10:]
-        botLogic(data, models_1W[index], 'M', 'N', str(index+10))
+        trend, value = botLogic(data, models_1W[index])
+        cell_list.append(trend)
+        cell_list.append(value)
+    updateSheet(wks, 'M10:N21', cell_list)
+    print("Updated in google sheet")
 
 if __name__=="__main__":
     # Running jobs once at the start:
@@ -222,10 +255,10 @@ if __name__=="__main__":
     # job2()
     job3()
     job4()
-    time.sleep(50)
+    # time.sleep(50)
     job4a()
     job5()
-    time.sleep(50)
+    # time.sleep(50)
     job6()
     job7()
     # Schedule jobs:
@@ -238,17 +271,20 @@ if __name__=="__main__":
     schedule.every(4).hours.do(job5)
     schedule.every().day.at("00:01").do(job6)
     schedule.every().monday.at("00:01").do(job7)
-    # count = 0
     while True:
         now_time = datetime.now(timezone('US/Eastern'))
         day = datetime.now(timezone('US/Eastern')).weekday()
         if(day <= 4):
+            print(schedule.jobs)
             schedule.run_pending()
-            time.sleep(1)
+            print("Running job...if")
+            time.sleep(20)
         else:
             print("Weekend...")
             wks.update('I2', 'Weekend: Bot Paused')
             # sleep for 2 days (1 minute before starting again)
             time.sleep(172740)
+            wks.update('I2', '')
+            time.sleep(5)
             wks.update('I2', 'Weekend over: Bot Started')
             print("Weekend over Starting again...")
